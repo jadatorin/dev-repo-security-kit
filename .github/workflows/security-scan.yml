@@ -1,0 +1,57 @@
+name: security-scan
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  scan:
+    name: gitleaks + osv-scanner
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_LICENSE: ""
+        with:
+          gitleaks: "detect --source . --no-banner --redact"
+
+      - name: osv-scanner
+        uses: google/osv-scanner-action@v1
+        with:
+          args: ["-r", "."]
+
+      - name: Validate PowerShell syntax (pwsh parser)
+        uses: actions/setup-powershell@v1
+        with:
+          pwsh-version: "7.4"
+        id: pwsh
+
+      - name: Parse .ps1 files
+        shell: pwsh
+        run: |
+          $failed = $false
+          Get-ChildItem -Recurse -Filter *.ps1 | ForEach-Object {
+            $tokens = $null
+            $errors = $null
+            [System.Management.Automation.Language.Parser]::ParseFile(
+              $_.FullName, [ref]$tokens, [ref]$errors
+            ) | Out-Null
+            if ($errors.Count -gt 0) {
+              $failed = $true
+              Write-Error ("Syntax error in {0}: {1}" -f $_.FullName, ($errors[0].Message))
+            }
+          }
+          if ($failed) { exit 1 }
+          Write-Host "All .ps1 files parsed successfully."
