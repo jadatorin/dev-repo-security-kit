@@ -30,7 +30,7 @@ jobs:
       - name: osv-scanner
         uses: google/osv-scanner-action@v2.3.8
         with:
-          args: ["-r", "."]
+          args: "-r ."
 
       - name: Validate PowerShell syntax (pwsh parser)
         # pwsh is preinstalled on ubuntu-latest runner images; no setup action needed.
