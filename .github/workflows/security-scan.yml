@@ -33,12 +33,7 @@ jobs:
           args: ["-r", "."]
 
       - name: Validate PowerShell syntax (pwsh parser)
-        uses: actions/setup-powershell@v1
-        with:
-          pwsh-version: "7.4"
-        id: pwsh
-
-      - name: Parse .ps1 files
+        # pwsh is preinstalled on ubuntu-latest runner images; no setup action needed.
         shell: pwsh
         run: |
           $failed = $false
