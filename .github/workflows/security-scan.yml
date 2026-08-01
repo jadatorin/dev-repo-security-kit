@@ -48,10 +48,14 @@ jobs:
 
   osv-scan:
     name: osv-scanner (dependency vulnerabilities)
+    permissions:
+      # Required by the osv-scanner reusable workflow (SARIF upload to Code Scanning).
+      actions: read
+      contents: read
+      security-events: write
     # Google's recommended reusable workflow (the raw docker action is
     # "not intended to be used directly" and may change behavior in minor
-    # patch updates). It declares its own permissions, including
-    # security-events: write for the SARIF upload to Code Scanning.
+    # patch updates).
     uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@v2.3.8
     with:
       scan-args: |-
