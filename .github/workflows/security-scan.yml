@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   scan:
-    name: gitleaks + osv-scanner
+    name: gitleaks + PowerShell syntax
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -26,11 +26,6 @@ jobs:
           GITLEAKS_LICENSE: ""
         with:
           gitleaks: "detect --source . --no-banner --redact"
-
-      - name: osv-scanner
-        uses: google/osv-scanner-action@v2.3.8
-        with:
-          args: "-r ."
 
       - name: Validate PowerShell syntax (pwsh parser)
         # pwsh is preinstalled on ubuntu-latest runner images; no setup action needed.
@@ -50,3 +45,15 @@ jobs:
           }
           if ($failed) { exit 1 }
           Write-Host "All .ps1 files parsed successfully."
+
+  osv-scan:
+    name: osv-scanner (dependency vulnerabilities)
+    # Google's recommended reusable workflow (the raw docker action is
+    # "not intended to be used directly" and may change behavior in minor
+    # patch updates). It declares its own permissions, including
+    # security-events: write for the SARIF upload to Code Scanning.
+    uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@v2.3.8
+    with:
+      scan-args: |-
+        -r
+        ./
