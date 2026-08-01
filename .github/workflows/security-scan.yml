@@ -24,8 +24,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITLEAKS_LICENSE: ""
-        with:
-          gitleaks: "detect --source . --no-banner --redact"
+        # gitleaks-action@v2 declares no inputs; it runs its default
+        # `gitleaks detect` scan and uploads gitleaks-results.sarif.
 
       - name: Validate PowerShell syntax (pwsh parser)
         # pwsh is preinstalled on ubuntu-latest runner images; no setup action needed.
@@ -59,5 +59,6 @@ jobs:
     uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@v2.3.8
     with:
       scan-args: |-
+        --allow-no-lockfiles
         -r
         ./
