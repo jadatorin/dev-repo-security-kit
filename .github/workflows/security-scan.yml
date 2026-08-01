@@ -28,7 +28,7 @@ jobs:
           gitleaks: "detect --source . --no-banner --redact"
 
       - name: osv-scanner
-        uses: google/osv-scanner-action@v1
+        uses: google/osv-scanner-action@v2.3.8
         with:
           args: ["-r", "."]
 
